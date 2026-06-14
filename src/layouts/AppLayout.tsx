@@ -18,6 +18,9 @@ import { Input } from "@/components/ui/form";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { SocialLinks } from "@/components/SocialLinks";
+import { useAuth } from "@/contexts/AuthProvider";
+import { useNotifications } from "@/hooks/useNotifications";
+import { emptySettings, useSettings } from "@/hooks/useSettings";
 import { useAppStore } from "@/store/appStore";
 import { cn } from "@/utils/cn";
 import { getInitials } from "@/utils/formatters";
@@ -36,17 +39,16 @@ type AppLayoutProps = {
 export function AppLayout({ area, navItems }: AppLayoutProps) {
   const navigate = useNavigate();
   const [notificationOpen, setNotificationOpen] = useState(false);
-  const user = useAppStore((state) => state.user);
-  const settings = useAppStore((state) => state.settings);
-  const notifications = useAppStore((state) => state.notifications);
+  const { user, logout: signOut } = useAuth();
+  const { data: settings = emptySettings } = useSettings();
+  const { data: notifications = [] } = useNotifications(user?.id, user?.role === "admin");
   const sidebarOpen = useAppStore((state) => state.sidebarOpen);
   const toggleSidebar = useAppStore((state) => state.toggleSidebar);
   const setSidebarOpen = useAppStore((state) => state.setSidebarOpen);
-  const setUser = useAppStore((state) => state.setUser);
   const unreadCount = notifications.filter((item) => !item.read).length;
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    await signOut();
     navigate("/login");
   };
 

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { emptySettings, useSettings } from "@/hooks/useSettings";
 import { useAppStore } from "@/store/appStore";
 import type { Product } from "@/types";
 import { cn } from "@/utils/cn";
@@ -30,7 +31,7 @@ export function ProductCard({
   compact?: boolean;
   onDetails?: (product: Product) => void;
 }) {
-  const settings = useAppStore((state) => state.settings);
+  const { data: settings = emptySettings } = useSettings();
   const favoriteProductIds = useAppStore((state) => state.favoriteProductIds);
   const toggleFavorite = useAppStore((state) => state.toggleFavorite);
   const trackSocialClick = useAppStore((state) => state.trackSocialClick);

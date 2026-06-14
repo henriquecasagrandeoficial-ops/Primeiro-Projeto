@@ -1,4 +1,4 @@
-import { Camera, Heart, MessageCircle, MessageSquare, Package, Share2, Star, TrendingUp, Vote } from "lucide-react";
+import { Heart, MessageSquare, Package, Star, Vote } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -14,6 +14,9 @@ import {
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useFeedbacks } from "@/hooks/useFeedbacks";
+import { useProducts } from "@/hooks/useProducts";
+import { useVotes } from "@/hooks/useVotes";
 import { useAppStore } from "@/store/appStore";
 import type { ProductCategory, ProductStatus } from "@/types";
 
@@ -22,11 +25,10 @@ const statusList: ProductStatus[] = ["available", "sold_out", "inactive"];
 const colors = ["#992842", "#f7c9d8", "#702238"];
 
 export function AdminDashboard() {
-  const products = useAppStore((state) => state.products);
-  const votes = useAppStore((state) => state.votes);
-  const feedbacks = useAppStore((state) => state.feedbacks);
+  const { data: products = [] } = useProducts();
+  const { data: votes = [] } = useVotes();
+  const { data: feedbacks = [] } = useFeedbacks();
   const favoriteProductIds = useAppStore((state) => state.favoriteProductIds);
-  const marketingMetrics = useAppStore((state) => state.marketingMetrics);
 
   const totalVotes = votes
     .flatMap((vote) => vote.options)
@@ -48,11 +50,7 @@ export function AdminDashboard() {
     value: products.filter((product) => product.status === status).length,
   }));
   const topViewedProducts = [...products]
-    .sort(
-      (a, b) =>
-        (marketingMetrics.productViews[b.id] ?? b.views ?? 0) -
-        (marketingMetrics.productViews[a.id] ?? a.views ?? 0),
-    )
+    .sort((a, b) => (b.views ?? 0) - (a.views ?? 0))
     .slice(0, 5);
 
   return (
@@ -83,36 +81,12 @@ export function AdminDashboard() {
         />
       </div>
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
+        <StatCard title="Produtos favoritos" value={favoriteProductIds.length} icon={<Heart />} />
         <StatCard
-          title="Cliques WhatsApp"
-          value={marketingMetrics.whatsappClicks}
-          icon={<MessageCircle />}
-        />
-        <StatCard
-          title="Cliques Instagram"
-          value={marketingMetrics.instagramClicks}
-          icon={<Camera />}
-        />
-        <StatCard
-          title="Compartilhamentos"
-          value={marketingMetrics.shareClicks}
-          icon={<Share2 />}
-        />
-        <StatCard
-          title="Produtos favoritos"
-          value={favoriteProductIds.length}
-          icon={<Heart />}
-        />
-        <StatCard
-          title="Favoritos adicionados"
-          value={marketingMetrics.favoriteAdds}
+          title="Visualizações registradas"
+          value={products.reduce((sum, product) => sum + (product.views ?? 0), 0)}
           icon={<Star />}
-        />
-        <StatCard
-          title="Taxa de engajamento"
-          value={`${marketingMetrics.engagementRate}%`}
-          icon={<TrendingUp />}
         />
       </div>
 
@@ -166,7 +140,7 @@ export function AdminDashboard() {
                   <p className="text-sm text-muted-foreground">{product.category}</p>
                 </div>
                 <strong className="text-primary">
-                  {marketingMetrics.productViews[product.id] ?? product.views ?? 0} views
+                  {product.views ?? 0} views
                 </strong>
               </div>
             ))}

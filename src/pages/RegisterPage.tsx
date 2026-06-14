@@ -9,7 +9,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldError, Input, Label } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useAuth } from "@/contexts/AuthProvider";
 import type { RegisterDTO } from "@/types";
 import { cn } from "@/utils/cn";
 import { formatBrazilianPhone, getPasswordStrength, isValidBrazilianPhone, normalizeEmail } from "@/utils/auth";
@@ -45,7 +45,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const registerUser = useAppStore((state) => state.registerUser);
+  const { register: createAccount } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const {
@@ -72,10 +72,10 @@ export function RegisterPage() {
   const confirmPassword = watch("confirmPassword");
   const strength = useMemo(() => getPasswordStrength(password), [password]);
 
-  const onSubmit = (data: RegisterDTO) => {
+  const onSubmit = async (data: RegisterDTO) => {
     try {
       setLoading(true);
-      registerUser(data);
+      await createAccount(data);
       toast.success("Cadastro realizado com sucesso.");
       navigate("/register/success");
     } catch (error) {

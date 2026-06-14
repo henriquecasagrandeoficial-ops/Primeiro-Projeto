@@ -1,24 +1,19 @@
 import { CheckCircle2, LogIn } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppStore } from "@/store/appStore";
+import { useAuth } from "@/contexts/AuthProvider";
 
 export function RegisterSuccessPage() {
   const navigate = useNavigate();
-  const users = useAppStore((state) => state.users);
-  const setUser = useAppStore((state) => state.setUser);
-  const newestClient = users.find((user) => user.role === "client");
+  const { user } = useAuth();
 
   const enterNow = () => {
-    if (!newestClient) {
+    if (!user) {
       navigate("/login");
       return;
     }
 
-    setUser(newestClient);
-    toast.success("Sessão iniciada.");
     navigate("/cliente", { replace: true });
   };
 

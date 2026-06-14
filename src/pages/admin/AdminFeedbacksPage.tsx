@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input, Label, Select, Textarea } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useFeedbackMutations, useFeedbacks } from "@/hooks/useFeedbacks";
 import type { FeedbackCategory, FeedbackStatus } from "@/types";
 import { formatDate } from "@/utils/formatters";
 
@@ -22,8 +22,8 @@ const statusLabel: Record<FeedbackStatus, string> = {
 };
 
 export function AdminFeedbacksPage() {
-  const feedbacks = useAppStore((state) => state.feedbacks);
-  const updateFeedbackStatus = useAppStore((state) => state.updateFeedbackStatus);
+  const { data: feedbacks = [] } = useFeedbacks();
+  const { updateStatus } = useFeedbackMutations();
   const [category, setCategory] = useState<FeedbackCategory | "all">("all");
   const [responseById, setResponseById] = useState<Record<string, string>>({});
 
@@ -90,12 +90,12 @@ export function AdminFeedbacksPage() {
                   <Button
                     key={status}
                     variant={feedback.status === status ? "default" : "outline"}
-                    onClick={() => {
-                      updateFeedbackStatus(
-                        feedback.id,
+                    onClick={async () => {
+                      await updateStatus.mutateAsync({
+                        id: feedback.id,
                         status,
-                        responseById[feedback.id] ?? feedback.response,
-                      );
+                        response: responseById[feedback.id] ?? feedback.response,
+                      });
                       toast.success("Feedback atualizado.");
                     }}
                   >

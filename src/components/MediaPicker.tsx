@@ -3,7 +3,8 @@ import type { ChangeEvent, DragEvent } from "react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useAppStore } from "@/store/appStore";
+import { useAuth } from "@/contexts/AuthProvider";
+import { useMediaAssets, useMediaMutations } from "@/hooks/useMediaAssets";
 import type { MediaUsage } from "@/types";
 import { cn } from "@/utils/cn";
 
@@ -22,9 +23,10 @@ export function MediaPicker({
 }: MediaPickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
-  const mediaAssets = useAppStore((state) => state.mediaAssets);
-  const addMediaAsset = useAppStore((state) => state.addMediaAsset);
-  const deleteMediaAsset = useAppStore((state) => state.deleteMediaAsset);
+  const { user } = useAuth();
+  const { data: mediaAssets = [] } = useMediaAssets();
+  const { uploadMedia, removeMedia } = useMediaMutations();
+  const canDelete = allowDelete && user?.role === "admin";
 
   const visibleAssets = mediaAssets.filter(
     (asset) => asset.usage === usage || asset.usage === "general",
@@ -38,14 +40,16 @@ export function MediaPicker({
     }
 
     try {
-      const url = await readFileAsDataUrl(file);
-      const asset = addMediaAsset({
-        name: file.name,
-        url,
-        type: file.type,
-        size: file.size,
-        usage,
-      });
+      const existing = visibleAssets.find(
+        (asset) => asset.name === file.name && asset.size === file.size && asset.type === file.type,
+      );
+      const asset =
+        existing ??
+        (await uploadMedia.mutateAsync({
+          file,
+          usage,
+          uploadedBy: user?.id,
+        }));
 
       onChange(asset.url);
       toast.success("Foto salva na biblioteca.");
@@ -66,13 +70,23 @@ export function MediaPicker({
   };
 
   const removeAsset = (id: string, selectedUrl: string) => {
-    try {
-      deleteMediaAsset(id);
-      if (value === selectedUrl) onChange("");
-      toast.success("Foto excluída da biblioteca.");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível excluir.");
+    if (!canDelete) {
+      toast.error("Somente administradores podem excluir fotos.");
+      return;
     }
+
+    removeMedia.mutate(
+      { id, url: selectedUrl },
+      {
+        onSuccess: () => {
+          if (value === selectedUrl) onChange("");
+          toast.success("Foto excluída da biblioteca.");
+        },
+        onError: (error) => {
+          toast.error(error instanceof Error ? error.message : "Não foi possível excluir.");
+        },
+      },
+    );
   };
 
   return (
@@ -160,7 +174,7 @@ export function MediaPicker({
                     <Check className="h-4 w-4" />
                   </span>
                 ) : null}
-                {allowDelete ? (
+                {canDelete ? (
                   <button
                     type="button"
                     className="absolute left-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-destructive text-destructive-foreground opacity-95"
@@ -191,13 +205,4 @@ export function MediaPicker({
       </div>
     </div>
   );
-}
-
-function readFileAsDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }

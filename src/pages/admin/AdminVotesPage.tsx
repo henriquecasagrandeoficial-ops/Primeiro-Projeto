@@ -8,15 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input, Label, Textarea } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useVoteMutations, useVotes } from "@/hooks/useVotes";
 import { formatDate } from "@/utils/formatters";
 
 export function AdminVotesPage() {
-  const votes = useAppStore((state) => state.votes);
-  const addVote = useAppStore((state) => state.addVote);
-  const addVoteOption = useAppStore((state) => state.addVoteOption);
-  const closeVote = useAppStore((state) => state.closeVote);
-  const publishVoteResult = useAppStore((state) => state.publishVoteResult);
+  const { data: votes = [] } = useVotes();
+  const { createVote: createVoteMutation, updateVote } = useVoteMutations();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [optionDialog, setOptionDialog] = useState<string | null>(null);
   const [optionName, setOptionName] = useState("");
@@ -27,13 +24,13 @@ export function AdminVotesPage() {
     endDate: "",
   });
 
-  const createVote = () => {
+  const createVote = async () => {
     if (!form.title || !form.endDate) {
       toast.error("Informe título e data de término.");
       return;
     }
 
-    addVote({
+    await createVoteMutation.mutateAsync({
       id: crypto.randomUUID(),
       title: form.title,
       description: form.description,
@@ -48,9 +45,18 @@ export function AdminVotesPage() {
     toast.success("Votação criada.");
   };
 
-  const saveOption = () => {
+  const saveOption = async () => {
     if (!optionDialog || !optionName) return;
-    addVoteOption(optionDialog, optionName);
+    const vote = votes.find((item) => item.id === optionDialog);
+    if (!vote) return;
+
+    await updateVote.mutateAsync({
+      ...vote,
+      options: [
+        ...vote.options,
+        { id: crypto.randomUUID(), productName: optionName, votes: 0 },
+      ],
+    });
     setOptionDialog(null);
     setOptionName("");
     toast.success("Opção adicionada.");
@@ -124,8 +130,8 @@ export function AdminVotesPage() {
                   <Button
                     variant="secondary"
                     disabled={vote.status === "closed"}
-                    onClick={() => {
-                      closeVote(vote.id);
+                    onClick={async () => {
+                      await updateVote.mutateAsync({ ...vote, status: "closed" });
                       toast.success("Votação encerrada.");
                     }}
                   >
@@ -133,8 +139,12 @@ export function AdminVotesPage() {
                   </Button>
                   <Button
                     disabled={!winner || vote.resultPublished}
-                    onClick={() => {
-                      publishVoteResult(vote.id);
+                    onClick={async () => {
+                      await updateVote.mutateAsync({
+                        ...vote,
+                        status: "closed",
+                        resultPublished: true,
+                      });
                       toast.success("Resultado publicado.");
                     }}
                   >

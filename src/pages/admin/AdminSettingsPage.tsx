@@ -1,16 +1,16 @@
 import { Save } from "lucide-react";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Label, Textarea } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { emptySettings, useSettings, useSettingsMutation } from "@/hooks/useSettings";
 
 export function AdminSettingsPage() {
-  const settings = useAppStore((state) => state.settings);
-  const updateSettings = useAppStore((state) => state.updateSettings);
+  const { data: settings = emptySettings } = useSettings();
+  const updateSettings = useSettingsMutation();
   const [form, setForm] = useState({
     ...settings,
     facebookUrl: settings.facebookUrl ?? "",
@@ -18,8 +18,17 @@ export function AdminSettingsPage() {
     customLinks: settings.customLinks ?? [],
   });
 
-  const save = () => {
-    updateSettings(form);
+  useEffect(() => {
+    setForm({
+      ...settings,
+      facebookUrl: settings.facebookUrl ?? "",
+      tiktokUrl: settings.tiktokUrl ?? "",
+      customLinks: settings.customLinks ?? [],
+    });
+  }, [settings]);
+
+  const save = async () => {
+    await updateSettings.mutateAsync(form);
     toast.success("Configurações atualizadas.");
   };
 

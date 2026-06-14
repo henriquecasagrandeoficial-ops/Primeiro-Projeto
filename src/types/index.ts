@@ -48,7 +48,6 @@ export interface User {
   createdAt: string;
   marketingConsent: boolean;
   lastActiveAt?: string;
-  password?: string;
   preferences: {
     notifications: boolean;
     theme: "light" | "dark";
@@ -126,6 +125,7 @@ export interface Promotion {
 
 export interface Notification {
   id: string;
+  userId?: string;
   type: NotificationType;
   title: string;
   message: string;
@@ -171,43 +171,6 @@ export interface Coupon {
   status: CouponStatus;
 }
 
-export interface LoyaltyHistoryItem {
-  id: string;
-  description: string;
-  points: number;
-  createdAt: string;
-}
-
-export interface LoyaltyAccount {
-  userId: string;
-  points: number;
-  nextReward: {
-    title: string;
-    requiredPoints: number;
-  };
-  benefits: string[];
-  history: LoyaltyHistoryItem[];
-}
-
-export interface MarketingMetrics {
-  whatsappClicks: number;
-  instagramClicks: number;
-  facebookClicks: number;
-  tiktokClicks: number;
-  shareClicks: number;
-  favoriteAdds: number;
-  productViews: Record<string, number>;
-  engagementRate: number;
-}
-
-export interface DashboardKpis {
-  totalProducts: number;
-  activeProducts: number;
-  totalVotes: number;
-  receivedFeedbacks: number;
-  topVotedProduct: string;
-}
-
 export interface RegisterDTO {
   fullName: string;
   email: string;
@@ -221,10 +184,4 @@ export interface RegisterDTO {
 export interface LoginDTO {
   email: string;
   password: string;
-}
-
-export interface AuthSession {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: string;
 }

@@ -2,10 +2,11 @@ import { Heart } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { EmptyState } from "@/components/ui/skeleton";
+import { useProducts } from "@/hooks/useProducts";
 import { useAppStore } from "@/store/appStore";
 
 export function ClientFavoritesPage() {
-  const products = useAppStore((state) => state.products);
+  const { data: products = [] } = useProducts();
   const favoriteProductIds = useAppStore((state) => state.favoriteProductIds);
   const favorites = products.filter((product) => favoriteProductIds.includes(product.id));
 

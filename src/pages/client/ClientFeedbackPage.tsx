@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldError, Input, Label, Select, Textarea } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useAuth } from "@/contexts/AuthProvider";
+import { useFeedbackMutations, useFeedbacks } from "@/hooks/useFeedbacks";
 import type { FeedbackCategory } from "@/types";
 import { formatDate } from "@/utils/formatters";
 
@@ -27,9 +28,9 @@ const categoryLabel: Record<FeedbackCategory, string> = {
 };
 
 export function ClientFeedbackPage() {
-  const user = useAppStore((state) => state.user);
-  const feedbacks = useAppStore((state) => state.feedbacks);
-  const addFeedback = useAppStore((state) => state.addFeedback);
+  const { user } = useAuth();
+  const { data: feedbacks = [] } = useFeedbacks();
+  const { createFeedback } = useFeedbackMutations();
   const {
     register,
     reset,
@@ -42,10 +43,12 @@ export function ClientFeedbackPage() {
 
   const userFeedbacks = feedbacks.filter((feedback) => feedback.userId === user?.id);
 
-  const onSubmit = (data: FeedbackForm) => {
-    addFeedback({
+  const onSubmit = async (data: FeedbackForm) => {
+    if (!user) return;
+
+    await createFeedback.mutateAsync({
       id: crypto.randomUUID(),
-      userId: user?.id ?? "client-1",
+      userId: user.id,
       status: "new",
       createdAt: new Date().toISOString().slice(0, 10),
       ...data,

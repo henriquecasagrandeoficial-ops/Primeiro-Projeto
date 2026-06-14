@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input, Label, Select, Textarea } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useProductMutations, useProducts } from "@/hooks/useProducts";
 import type { Product, ProductCategory, ProductStatus } from "@/types";
 import { formatCurrency } from "@/utils/formatters";
 
@@ -40,13 +41,8 @@ const emptyForm: ProductForm = {
 };
 
 export function AdminProductsPage() {
-  const products = useAppStore((state) => state.products);
-  const addProduct = useAppStore((state) => state.addProduct);
-  const updateProduct = useAppStore((state) => state.updateProduct);
-  const deleteProduct = useAppStore((state) => state.deleteProduct);
-  const duplicateProduct = useAppStore((state) => state.duplicateProduct);
-  const bulkUpdateProducts = useAppStore((state) => state.bulkUpdateProducts);
-  const bulkDeleteProducts = useAppStore((state) => state.bulkDeleteProducts);
+  const { data: products = [], isLoading } = useProducts();
+  const mutations = useProductMutations();
   const [form, setForm] = useState<ProductForm>(emptyForm);
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -88,7 +84,7 @@ export function AdminProductsPage() {
     setFormOpen(false);
   };
 
-  const saveProduct = () => {
+  const saveProduct = async () => {
     if (!form.name || !form.price) {
       toast.error("Informe nome e valor do produto.");
       return;
@@ -114,10 +110,10 @@ export function AdminProductsPage() {
     };
 
     if (editingProduct) {
-      updateProduct(product);
+      await mutations.updateProduct.mutateAsync(product);
       toast.success("Produto atualizado.");
     } else {
-      addProduct(product);
+      await mutations.createProduct.mutateAsync(product);
       toast.success("Produto criado.");
     }
 
@@ -131,13 +127,13 @@ export function AdminProductsPage() {
   };
 
   const applyBulkStatus = (status: ProductStatus) => {
-    bulkUpdateProducts(selectedIds, status);
+    mutations.bulkUpdateProducts.mutate({ ids: selectedIds, status });
     setSelectedIds([]);
     toast.success("Produtos atualizados em massa.");
   };
 
   const applyBulkDelete = () => {
-    bulkDeleteProducts(selectedIds);
+    mutations.bulkDeleteProducts.mutate(selectedIds);
     setSelectedIds([]);
     toast.success("Produtos excluídos.");
   };
@@ -154,6 +150,8 @@ export function AdminProductsPage() {
           </Button>
         }
       />
+
+      {isLoading ? <Skeleton className="mb-4 h-48" /> : null}
 
       {selectedCount ? (
         <Card className="mb-4">
@@ -231,8 +229,11 @@ export function AdminProductsPage() {
                         variant="ghost"
                         size="icon"
                         title="Duplicar produto"
-                        onClick={() => {
-                          duplicateProduct(product.id);
+                        onClick={async () => {
+                          await mutations.duplicateProduct.mutateAsync({
+                            id: crypto.randomUUID(),
+                            product,
+                          });
                           toast.success("Produto duplicado.");
                         }}
                       >
@@ -274,7 +275,7 @@ export function AdminProductsPage() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => {
           if (deleteTarget) {
-            deleteProduct(deleteTarget.id);
+            mutations.removeProduct.mutate(deleteTarget.id);
             setDeleteTarget(null);
             toast.success("Produto excluído.");
           }

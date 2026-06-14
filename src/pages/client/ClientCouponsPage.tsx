@@ -4,11 +4,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAppStore } from "@/store/appStore";
+import { useCoupons } from "@/hooks/useCoupons";
 import { formatDate } from "@/utils/formatters";
 
 export function ClientCouponsPage() {
-  const coupons = useAppStore((state) => state.coupons);
+  const { data: coupons = [] } = useCoupons();
 
   return (
     <div>

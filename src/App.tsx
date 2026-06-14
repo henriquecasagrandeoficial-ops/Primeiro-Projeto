@@ -3,8 +3,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { ClientLayout } from "@/layouts/ClientLayout";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
-import { useAppStore } from "@/store/appStore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthProvider";
 
 const LoginPage = lazy(() => import("@/pages/LoginPage").then((module) => ({ default: module.LoginPage })));
 const RegisterPage = lazy(() => import("@/pages/RegisterPage").then((module) => ({ default: module.RegisterPage })));
@@ -30,7 +30,7 @@ const AdminNoticesPage = lazy(() => import("@/pages/admin/AdminNoticesPage").the
 const AdminSettingsPage = lazy(() => import("@/pages/admin/AdminSettingsPage").then((module) => ({ default: module.AdminSettingsPage })));
 
 export function App() {
-  const user = useAppStore((state) => state.user);
+  const { user } = useAuth();
   const home = user?.role === "admin" ? "/admin" : "/cliente";
 
   return (

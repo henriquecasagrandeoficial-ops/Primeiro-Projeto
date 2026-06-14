@@ -1,8 +1,9 @@
 import { MessageCircle } from "lucide-react";
+import { emptySettings, useSettings } from "@/hooks/useSettings";
 import { useAppStore } from "@/store/appStore";
 
 export function FloatingWhatsApp() {
-  const settings = useAppStore((state) => state.settings);
+  const { data: settings = emptySettings } = useSettings();
   const trackSocialClick = useAppStore((state) => state.trackSocialClick);
 
   return (

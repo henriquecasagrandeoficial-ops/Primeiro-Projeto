@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input, Label, Select, Textarea } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useCouponMutations, useCoupons } from "@/hooks/useCoupons";
 import type { Coupon, CouponStatus } from "@/types";
 import { formatDate } from "@/utils/formatters";
 
@@ -22,9 +22,8 @@ const emptyCoupon = {
 };
 
 export function AdminCouponsPage() {
-  const coupons = useAppStore((state) => state.coupons);
-  const addCoupon = useAppStore((state) => state.addCoupon);
-  const updateCoupon = useAppStore((state) => state.updateCoupon);
+  const { data: coupons = [] } = useCoupons();
+  const { createCoupon, updateCoupon } = useCouponMutations();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Coupon | null>(null);
   const [form, setForm] = useState(emptyCoupon);
@@ -41,7 +40,7 @@ export function AdminCouponsPage() {
     setOpen(true);
   };
 
-  const save = () => {
+  const save = async () => {
     if (!form.code || !form.title || !form.discount || !form.validUntil) {
       toast.error("Preencha código, título, desconto e validade.");
       return;
@@ -53,10 +52,10 @@ export function AdminCouponsPage() {
     };
 
     if (editing) {
-      updateCoupon(coupon);
+      await updateCoupon.mutateAsync(coupon);
       toast.success("Cupom atualizado.");
     } else {
-      addCoupon(coupon);
+      await createCoupon.mutateAsync(coupon);
       toast.success("Cupom criado.");
     }
 

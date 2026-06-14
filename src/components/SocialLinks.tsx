@@ -1,6 +1,7 @@
 import { Camera, MessageCircle, Music2, Share2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { emptySettings, useSettings } from "@/hooks/useSettings";
 import { useAppStore } from "@/store/appStore";
 import type { SocialPlatform } from "@/types";
 
@@ -17,7 +18,7 @@ const socialItems: Array<{
 ];
 
 export function SocialLinks({ compact = false }: { compact?: boolean }) {
-  const settings = useAppStore((state) => state.settings);
+  const { data: settings = emptySettings } = useSettings();
   const trackSocialClick = useAppStore((state) => state.trackSocialClick);
 
   return (

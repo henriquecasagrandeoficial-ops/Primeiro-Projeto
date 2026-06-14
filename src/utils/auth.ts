@@ -36,13 +36,3 @@ export function getPasswordStrength(password: string) {
   if (score === 4) return { score, label: "Forte", color: "bg-emerald-500" };
   return { score, label: "Muito Forte", color: "bg-primary" };
 }
-
-export function createMockSession() {
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString();
-
-  return {
-    accessToken: crypto.randomUUID(),
-    refreshToken: crypto.randomUUID(),
-    expiresAt,
-  };
-}

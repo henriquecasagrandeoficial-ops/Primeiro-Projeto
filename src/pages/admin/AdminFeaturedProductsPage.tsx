@@ -4,26 +4,29 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useProductMutations, useProducts } from "@/hooks/useProducts";
 import type { Product } from "@/types";
 
 export function AdminFeaturedProductsPage({ mode }: { mode: "day" | "week" }) {
-  const products = useAppStore((state) => state.products);
-  const updateProduct = useAppStore((state) => state.updateProduct);
+  const { data: products = [], isLoading } = useProducts();
+  const { updateProduct } = useProductMutations();
   const title = mode === "day" ? "Produtos do Dia" : "Produtos da Semana";
   const description =
     mode === "day"
       ? "Selecione produtos do dia e programe a data de destaque."
       : "Selecione produtos da semana e programe o período de destaque.";
 
-  const update = (product: Product) => {
-    updateProduct(product);
+  const update = async (product: Product) => {
+    await updateProduct.mutateAsync(product);
     toast.success("Programação atualizada.");
   };
 
   return (
     <div>
       <PageHeader title={title} description={description} />
+
+      {isLoading ? <Skeleton className="mb-4 h-48" /> : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {products.map((product) => {
@@ -49,7 +52,7 @@ export function AdminFeaturedProductsPage({ mode }: { mode: "day" | "week" }) {
                       type="date"
                       value={product.scheduledDay ?? ""}
                       onChange={(event) =>
-                        update({ ...product, scheduledDay: event.target.value })
+                        void update({ ...product, scheduledDay: event.target.value })
                       }
                     />
                   </div>
@@ -61,7 +64,7 @@ export function AdminFeaturedProductsPage({ mode }: { mode: "day" | "week" }) {
                         type="date"
                         value={product.scheduledWeek?.start ?? ""}
                         onChange={(event) =>
-                          update({
+                          void update({
                             ...product,
                             scheduledWeek: {
                               start: event.target.value,
@@ -77,7 +80,7 @@ export function AdminFeaturedProductsPage({ mode }: { mode: "day" | "week" }) {
                         type="date"
                         value={product.scheduledWeek?.end ?? ""}
                         onChange={(event) =>
-                          update({
+                          void update({
                             ...product,
                             scheduledWeek: {
                               start: product.scheduledWeek?.start ?? "",
@@ -94,7 +97,7 @@ export function AdminFeaturedProductsPage({ mode }: { mode: "day" | "week" }) {
                   variant={active ? "outline" : "default"}
                   className="w-full"
                   onClick={() =>
-                    update(
+                    void update(
                       mode === "day"
                         ? { ...product, productOfDay: !product.productOfDay }
                         : { ...product, featuredWeek: !product.featuredWeek },

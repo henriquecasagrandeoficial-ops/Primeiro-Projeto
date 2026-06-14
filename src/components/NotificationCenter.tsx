@@ -13,7 +13,8 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useAuth } from "@/contexts/AuthProvider";
+import { useNotificationMutations, useNotifications } from "@/hooks/useNotifications";
 import type { NotificationType } from "@/types";
 import { cn } from "@/utils/cn";
 import { formatDate } from "@/utils/formatters";
@@ -42,10 +43,9 @@ export function NotificationCenter({
   open: boolean;
   onClose: () => void;
 }) {
-  const notifications = useAppStore((state) => state.notifications);
-  const markNotificationRead = useAppStore((state) => state.markNotificationRead);
-  const markAllNotificationsRead = useAppStore((state) => state.markAllNotificationsRead);
-  const deleteNotification = useAppStore((state) => state.deleteNotification);
+  const { user } = useAuth();
+  const { data: notifications = [] } = useNotifications(user?.id, user?.role === "admin");
+  const { markRead, removeNotification } = useNotificationMutations();
   const [filter, setFilter] = useState<NotificationType | "all">("all");
 
   const unreadCount = notifications.filter((notification) => !notification.read).length;
@@ -97,7 +97,14 @@ export function NotificationCenter({
               </option>
             ))}
           </Select>
-          <Button variant="outline" onClick={markAllNotificationsRead}>
+          <Button
+            variant="outline"
+            onClick={() =>
+              notifications
+                .filter((notification) => !notification.read)
+                .forEach((notification) => markRead.mutate({ id: notification.id }))
+            }
+          >
             Ler todas
           </Button>
         </div>
@@ -125,7 +132,7 @@ export function NotificationCenter({
                       variant="ghost"
                       size="icon"
                       aria-label="Excluir notificação"
-                      onClick={() => deleteNotification(notification.id)}
+                      onClick={() => removeNotification.mutate(notification.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -141,7 +148,7 @@ export function NotificationCenter({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => markNotificationRead(notification.id)}
+                        onClick={() => markRead.mutate({ id: notification.id })}
                       >
                         Marcar como lida
                       </Button>

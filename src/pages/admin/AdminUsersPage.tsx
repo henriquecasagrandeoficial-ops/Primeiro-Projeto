@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select } from "@/components/ui/form";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
-import { useAppStore } from "@/store/appStore";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useUsers } from "@/hooks/useUsers";
 import { formatDate, getInitials } from "@/utils/formatters";
 
 type UserFilter = "recent" | "active";
 
 export function AdminUsersPage() {
-  const users = useAppStore((state) => state.users);
+  const { data: users = [], isLoading } = useUsers();
   const [filter, setFilter] = useState<UserFilter>("recent");
 
   const sortedUsers = useMemo(() => {
@@ -40,6 +41,14 @@ export function AdminUsersPage() {
         description="Acompanhe clientes cadastrados, consentimento de marketing e estrutura base para permissões futuras."
       />
 
+      {isLoading ? (
+        <div className="grid gap-4 md:grid-cols-3">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+        </div>
+      ) : null}
+
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
           title="Usuários cadastrados"
@@ -65,7 +74,7 @@ export function AdminUsersPage() {
         <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Lista de usuários</CardTitle>
-            <CardDescription>Dados mockados, sem exposição de senha.</CardDescription>
+            <CardDescription>Dados carregados do Firestore, sem exposição de senha.</CardDescription>
           </div>
           <Select
             value={filter}

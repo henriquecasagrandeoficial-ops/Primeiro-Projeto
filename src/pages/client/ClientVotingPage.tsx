@@ -4,15 +4,24 @@ import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppStore } from "@/store/appStore";
+import { useVoteMutations, useVotes } from "@/hooks/useVotes";
 import { formatDate } from "@/utils/formatters";
 
 export function ClientVotingPage() {
-  const votes = useAppStore((state) => state.votes);
-  const voteProduct = useAppStore((state) => state.vote);
+  const { data: votes = [] } = useVotes();
+  const { updateVote } = useVoteMutations();
 
-  const handleVote = (voteId: string, optionId: string) => {
-    voteProduct(voteId, optionId);
+  const handleVote = async (voteId: string, optionId: string) => {
+    const vote = votes.find((item) => item.id === voteId);
+    if (!vote || vote.userVotedOptionId) return;
+
+    await updateVote.mutateAsync({
+      ...vote,
+      userVotedOptionId: optionId,
+      options: vote.options.map((option) =>
+        option.id === optionId ? { ...option, votes: option.votes + 1 } : option,
+      ),
+    });
     toast.success("Voto registrado com sucesso!");
   };
 
@@ -65,7 +74,7 @@ export function ClientVotingPage() {
                         <Button
                           variant={selected ? "secondary" : "default"}
                           disabled={Boolean(vote.userVotedOptionId)}
-                          onClick={() => handleVote(vote.id, option.id)}
+                          onClick={() => void handleVote(vote.id, option.id)}
                         >
                           {selected ? "Seu voto" : "Votar"}
                         </Button>

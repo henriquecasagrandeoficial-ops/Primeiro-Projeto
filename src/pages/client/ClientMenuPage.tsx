@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input, Label, Select } from "@/components/ui/form";
 import { EmptyState } from "@/components/ui/skeleton";
+import { useProducts } from "@/hooks/useProducts";
 import { useAppStore } from "@/store/appStore";
 import type { Product, ProductCategory, ProductStatus } from "@/types";
 import { cn } from "@/utils/cn";
@@ -22,11 +23,10 @@ const categories: Array<ProductCategory | "Todas"> = [
 ];
 
 export function ClientMenuPage() {
-  const products = useAppStore((state) => state.products);
+  const { data: products = [] } = useProducts();
   const searchHistory = useAppStore((state) => state.searchHistory);
   const addSearchTerm = useAppStore((state) => state.addSearchTerm);
   const clearSearchHistory = useAppStore((state) => state.clearSearchHistory);
-  const trackProductView = useAppStore((state) => state.trackProductView);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<ProductCategory | "Todas">("Todas");
   const [status, setStatus] = useState<ProductStatus | "all">("all");
@@ -64,7 +64,6 @@ export function ClientMenuPage() {
   const popularProducts = [...products].sort((a, b) => b.views - a.views).slice(0, 4);
 
   const openDetails = (product: Product) => {
-    trackProductView(product.id);
     addSearchTerm(product.name);
     setSelectedProduct(product);
   };

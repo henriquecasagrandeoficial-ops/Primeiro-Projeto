@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldError, Input, Label } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useAuth } from "@/contexts/AuthProvider";
 
 const schema = z.object({
   email: z.string().email("Informe um e-mail válido."),
@@ -17,7 +17,7 @@ const schema = z.object({
 type ForgotPasswordForm = z.infer<typeof schema>;
 
 export function ForgotPasswordPage() {
-  const requestPasswordReset = useAppStore((state) => state.requestPasswordReset);
+  const { requestPasswordReset } = useAuth();
   const [sent, setSent] = useState(false);
   const {
     register,
@@ -27,11 +27,11 @@ export function ForgotPasswordPage() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: ForgotPasswordForm) => {
+  const onSubmit = async (data: ForgotPasswordForm) => {
     try {
-      requestPasswordReset(data.email);
+      await requestPasswordReset(data.email);
       setSent(true);
-      toast.success("Fluxo de recuperação iniciado.");
+      toast.success("E-mail de recuperação enviado.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erro ao solicitar recuperação.");
     }
@@ -43,13 +43,13 @@ export function ForgotPasswordPage() {
         <CardHeader>
           <CardTitle>Esqueci minha senha</CardTitle>
           <CardDescription>
-            Informe seu e-mail para iniciar a recuperação. O envio real será integrado ao backend futuramente.
+            Informe seu e-mail para receber as instruções oficiais do Firebase.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {sent ? (
             <div className="rounded-xl border bg-secondary p-4 text-sm text-secondary-foreground">
-              Se o e-mail existir, enviaremos as instruções de recuperação quando o backend estiver conectado.
+              Se o e-mail existir no Firebase, as instruções de recuperação chegarão na caixa de entrada.
             </div>
           ) : (
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>

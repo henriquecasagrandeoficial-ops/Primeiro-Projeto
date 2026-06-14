@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input, Label, Textarea } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useProducts } from "@/hooks/useProducts";
+import { usePromotionMutations, usePromotions } from "@/hooks/usePromotions";
 import { formatDate } from "@/utils/formatters";
 
 export function AdminPromotionsPage() {
-  const products = useAppStore((state) => state.products);
-  const promotions = useAppStore((state) => state.promotions);
-  const addPromotion = useAppStore((state) => state.addPromotion);
+  const { data: products = [] } = useProducts();
+  const { data: promotions = [] } = usePromotions();
+  const { createPromotion } = usePromotionMutations();
   const [open, setOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [form, setForm] = useState({
@@ -24,13 +25,13 @@ export function AdminPromotionsPage() {
     bannerUrl: "",
   });
 
-  const createPromotion = () => {
+  const savePromotion = async () => {
     if (!form.title || !form.validUntil) {
       toast.error("Informe título e validade.");
       return;
     }
 
-    addPromotion({
+    await createPromotion.mutateAsync({
       id: crypto.randomUUID(),
       title: form.title,
       description: form.description,
@@ -98,7 +99,7 @@ export function AdminPromotionsPage() {
         title="Criar promoção"
         confirmLabel="Salvar"
         onClose={() => setOpen(false)}
-        onConfirm={createPromotion}
+        onConfirm={savePromotion}
       >
         <div className="space-y-4">
           <Field label="Título">

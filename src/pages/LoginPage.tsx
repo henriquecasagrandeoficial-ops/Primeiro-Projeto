@@ -14,8 +14,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FieldError, Input, Label } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
-import type { LoginDTO, UserRole } from "@/types";
+import { useAuth } from "@/contexts/AuthProvider";
+import type { UserRole } from "@/types";
 import { cn } from "@/utils/cn";
 
 const schema = z.object({
@@ -28,7 +28,7 @@ type LoginForm = z.infer<typeof schema>;
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const loginUser = useAppStore((state) => state.loginUser);
+  const { login, logout } = useAuth();
   const [role, setRole] = useState<UserRole>("client");
   const [loading, setLoading] = useState(false);
   const {
@@ -38,8 +38,8 @@ export function LoginPage() {
   } = useForm<LoginForm>({
     resolver: zodResolver(schema),
     defaultValues: {
-      email: "cliente@doceria.com",
-      password: "123456",
+      email: "",
+      password: "",
       remember: true,
     },
   });
@@ -47,7 +47,13 @@ export function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       setLoading(true);
-      const user = loginUser(data as LoginDTO, role);
+      const user = await login(data);
+      if (user.role !== role) {
+        await logout();
+        toast.error("Este usuário não pertence ao perfil selecionado.");
+        return;
+      }
+
       toast.success(`Bem-vindo, ${user.name}!`);
       navigate(role === "admin" ? "/admin" : "/cliente", { replace: true });
     } catch (error) {
@@ -71,7 +77,7 @@ export function LoginPage() {
             </h1>
             <p className="max-w-2xl text-lg text-muted-foreground">
               Acesse a área do cliente ou o painel administrativo com dados
-              simulados, cardápio, votações, feedbacks e gestão de produtos.
+              reais conectados ao Firebase.
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">

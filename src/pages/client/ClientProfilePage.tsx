@@ -6,13 +6,12 @@ import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useAuth } from "@/contexts/AuthProvider";
 import { formatBrazilianPhone } from "@/utils/auth";
 import { getInitials } from "@/utils/formatters";
 
 export function ClientProfilePage() {
-  const user = useAppStore((state) => state.user);
-  const updateProfile = useAppStore((state) => state.updateProfile);
+  const { user, updateProfile } = useAuth();
   const [name, setName] = useState(user?.fullName ?? user?.name ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [avatar, setAvatar] = useState(user?.avatar ?? user?.avatarUrl ?? "");
@@ -21,21 +20,25 @@ export function ClientProfilePage() {
     user?.preferences.notifications ?? true,
   );
 
-  const save = () => {
+  const save = async () => {
     if (!user) return;
-    updateProfile({
-      ...user,
-      fullName: name,
-      name,
-      phone,
-      avatar,
-      avatarUrl: avatar,
-      preferences: {
-        theme,
-        notifications,
-      },
-    });
-    toast.success("Perfil atualizado.");
+    try {
+      await updateProfile({
+        ...user,
+        fullName: name,
+        name,
+        phone,
+        avatar,
+        avatarUrl: avatar,
+        preferences: {
+          theme,
+          notifications,
+        },
+      });
+      toast.success("Perfil atualizado.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao atualizar perfil.");
+    }
   };
 
   return (

@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input, Label, Textarea } from "@/components/ui/form";
-import { useAppStore } from "@/store/appStore";
+import { useNotificationMutations, useNotifications } from "@/hooks/useNotifications";
 import { formatDate } from "@/utils/formatters";
 
 export function AdminNoticesPage() {
-  const notifications = useAppStore((state) => state.notifications);
-  const addNotification = useAppStore((state) => state.addNotification);
+  const { data: notifications = [] } = useNotifications(undefined, true);
+  const { createNotification } = useNotificationMutations();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -21,14 +21,15 @@ export function AdminNoticesPage() {
     expireDate: "",
   });
 
-  const publish = () => {
+  const publish = async () => {
     if (!form.title || !form.message) {
       toast.error("Informe título e mensagem.");
       return;
     }
 
-    addNotification({
+    await createNotification.mutateAsync({
       id: crypto.randomUUID(),
+      userId: "all",
       type: "announcement",
       title: form.title,
       message: form.expireDate
