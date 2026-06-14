@@ -11,7 +11,10 @@ export async function createVote(vote: Vote) {
 }
 
 export async function updateVote(vote: Vote) {
-  await updateDoc(documentRef("votes", vote.id), cleanUndefined(vote));
+  await updateDoc(
+    documentRef("votes", vote.id),
+    cleanUndefined(vote) as unknown as Record<string, unknown>,
+  );
 }
 
 export async function removeVote(id: string) {

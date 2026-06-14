@@ -27,6 +27,9 @@ export function useSettings() {
   return useQuery({
     queryKey: ["settings"],
     queryFn: getSettings,
+    // Garante que os consumidores sempre recebam um objeto Settings válido,
+    // mesmo quando o documento ainda não existe no Firestore (retorno null).
+    select: (data): Settings => data ?? emptySettings,
   });
 }
 

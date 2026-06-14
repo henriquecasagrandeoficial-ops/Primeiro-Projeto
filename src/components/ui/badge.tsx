@@ -1,14 +1,25 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/utils/cn";
 
-type BadgeVariant = "default" | "secondary" | "success" | "warning" | "danger";
+type BadgeVariant =
+  | "default"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "gold"
+  | "rose"
+  | "outline";
 
 const variants: Record<BadgeVariant, string> = {
   default: "bg-primary text-primary-foreground",
+  outline: "bg-transparent text-muted-foreground ring-1 ring-inset ring-border",
   secondary: "bg-secondary text-secondary-foreground ring-1 ring-inset ring-accent/30",
   success: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
   warning: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200",
   danger: "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200",
+  gold: "bg-accent text-accent-foreground ring-1 ring-inset ring-accent/40 shadow-sm",
+  rose: "bg-rose-soft ring-1 ring-inset ring-rose/40",
 };
 
 type BadgeProps = HTMLAttributes<HTMLSpanElement> & {

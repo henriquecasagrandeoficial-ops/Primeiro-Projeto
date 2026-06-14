@@ -22,7 +22,9 @@ import type { ProductCategory, ProductStatus } from "@/types";
 
 const categoryList: ProductCategory[] = ["Bolos", "Doces", "Sobremesas", "Salgados"];
 const statusList: ProductStatus[] = ["available", "sold_out", "inactive"];
-const colors = ["#992842", "#f7c9d8", "#702238"];
+const colors = ["#6b3f23", "#c79a4b", "#e8b9ad"];
+const chartGrid = "#e9dcc7";
+const chartAxis = "#8a7359";
 
 export function AdminDashboard() {
   const { data: products = [] } = useProducts();
@@ -98,11 +100,18 @@ export function AdminDashboard() {
           <CardContent className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="produtos" fill="#992842" radius={[8, 8, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} vertical={false} />
+                <XAxis dataKey="name" stroke={chartAxis} tickLine={false} axisLine={false} />
+                <YAxis allowDecimals={false} stroke={chartAxis} tickLine={false} axisLine={false} />
+                <Tooltip
+                  cursor={{ fill: "rgba(199,154,75,0.1)" }}
+                  contentStyle={{
+                    borderRadius: 12,
+                    border: "1px solid #e9dcc7",
+                    boxShadow: "0 10px 30px -14px rgba(58,36,18,0.18)",
+                  }}
+                />
+                <Bar dataKey="produtos" fill="#6b3f23" radius={[8, 8, 0, 0]} maxBarSize={56} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -115,12 +124,18 @@ export function AdminDashboard() {
           <CardContent className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={110} label>
+                <Pie data={statusData} dataKey="value" nameKey="name" innerRadius={56} outerRadius={108} paddingAngle={3} label>
                   {statusData.map((item, index) => (
-                    <Cell key={item.name} fill={colors[index % colors.length]} />
+                    <Cell key={item.name} fill={colors[index % colors.length]} stroke="#fffdfa" strokeWidth={2} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: 12,
+                    border: "1px solid #e9dcc7",
+                    boxShadow: "0 10px 30px -14px rgba(58,36,18,0.18)",
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>

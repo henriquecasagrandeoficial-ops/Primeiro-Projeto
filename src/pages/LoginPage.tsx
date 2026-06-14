@@ -67,26 +67,37 @@ export function LoginPage() {
     <main className="grid min-h-screen place-items-center px-4 py-10">
       <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_480px] lg:items-center">
         <section className="space-y-8">
-          <div className="inline-flex items-center gap-3 rounded-full border bg-card px-4 py-2 text-sm font-semibold text-primary">
-            <CakeSlice className="h-4 w-4" />
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-accent/40 bg-card px-4 py-2 text-sm font-semibold text-primary shadow-soft">
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-primary-foreground">
+              <CakeSlice className="h-3.5 w-3.5" />
+            </span>
             Doceria Dona Lu
           </div>
-          <div className="space-y-4">
-            <h1 className="max-w-3xl text-balance text-4xl font-black tracking-tight text-primary sm:text-6xl">
-              Gestão moderna para encantar clientes e organizar a doceria.
+          <div className="space-y-5">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+              <span className="h-px w-7 bg-accent" aria-hidden="true" />
+              Doces artesanais premium
+            </span>
+            <h1 className="max-w-3xl text-balance font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+              Cada detalhe pensado para <span className="text-primary">adoçar</span> a sua experiência.
             </h1>
-            <p className="max-w-2xl text-lg text-muted-foreground">
-              Acesse a área do cliente ou o painel administrativo com dados
-              reais conectados ao Firebase.
+            <p className="max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
+              Acesse a área do cliente ou o painel administrativo. Cardápio,
+              fidelidade, votações e encomendas em um só lugar.
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            {["Cardápio completo", "Votações", "CRUD admin"].map((item) => (
-              <div key={item} className="rounded-xl border bg-card p-4 shadow-sm">
-                <p className="font-semibold">{item}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Fluxo pronto para integração futura.
-                </p>
+            {[
+              { title: "Cardápio premium", desc: "Vitrine artesanal completa." },
+              { title: "Votações", desc: "Escolha os próximos sabores." },
+              { title: "Fidelidade", desc: "Recompensas exclusivas." },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-border/70 bg-card p-4 shadow-soft transition hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-elevated"
+              >
+                <p className="font-semibold">{item.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
               </div>
             ))}
           </div>
