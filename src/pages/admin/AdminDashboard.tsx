@@ -1,4 +1,4 @@
-import { Heart, Instagram, MessageCircle, MessageSquare, Package, Share2, Star, TrendingUp, Vote } from "lucide-react";
+import { Camera, Heart, MessageCircle, MessageSquare, Package, Share2, Star, TrendingUp, Vote } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -92,7 +92,7 @@ export function AdminDashboard() {
         <StatCard
           title="Cliques Instagram"
           value={marketingMetrics.instagramClicks}
-          icon={<Instagram />}
+          icon={<Camera />}
         />
         <StatCard
           title="Compartilhamentos"

@@ -1,4 +1,4 @@
-import { Facebook, Instagram, MessageCircle, Music2 } from "lucide-react";
+import { Camera, MessageCircle, Music2, Share2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/store/appStore";
@@ -10,9 +10,9 @@ const socialItems: Array<{
   icon: ReactNode;
   keyName: "instagramUrl" | "whatsappUrl" | "facebookUrl" | "tiktokUrl";
 }> = [
-  { platform: "instagram", label: "Instagram", icon: <Instagram className="h-4 w-4" />, keyName: "instagramUrl" },
+  { platform: "instagram", label: "Instagram", icon: <Camera className="h-4 w-4" />, keyName: "instagramUrl" },
   { platform: "whatsapp", label: "WhatsApp", icon: <MessageCircle className="h-4 w-4" />, keyName: "whatsappUrl" },
-  { platform: "facebook", label: "Facebook", icon: <Facebook className="h-4 w-4" />, keyName: "facebookUrl" },
+  { platform: "facebook", label: "Facebook", icon: <Share2 className="h-4 w-4" />, keyName: "facebookUrl" },
   { platform: "tiktok", label: "TikTok", icon: <Music2 className="h-4 w-4" />, keyName: "tiktokUrl" },
 ];
 

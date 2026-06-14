@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { BellRing, CalendarDays, Flame, Gift, Instagram, Star, Trophy } from "lucide-react";
+import { BellRing, CalendarDays, Camera, Flame, Gift, Star, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -150,7 +150,7 @@ export function ClientDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Instagram className="h-5 w-5 text-primary" />
+              <Camera className="h-5 w-5 text-primary" />
               Acompanhe a doceria
             </CardTitle>
           </CardHeader>
